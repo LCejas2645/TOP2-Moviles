@@ -9,34 +9,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.softlc.listadeinmuebles.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<Inmueble> lista = new ArrayList<>();
+    private MainActivityViewModel vm;
+    ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        vm =  ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(MainActivityViewModel.class);
+        vm.getListaA().observe(this, new Observer<List<Inmueble>>() {
+            @Override
+            public void onChanged(List<Inmueble> inmuebles) {
+                ListaAdapter  la = new ListaAdapter(MainActivity.this,R.layout.item,inmuebles,getLayoutInflater());
+                ListView lv = binding.lvMiLista;
+                lv.setAdapter(la);
+            }
         });
-        cargarDatos();
-        generarListView();
-    }
+        vm.cargarDatos();
 
-    public void generarListView(){
-
-        ArrayAdapter<Inmueble> adapter = new ListaAdapter(this,R.layout.item,lista,getLayoutInflater());
-        ListView lv = findViewById(R.id.lvMiLista);
-        lv.setAdapter(adapter);
-    }
-    public void cargarDatos(){
-        lista.add(new Inmueble(R.drawable.img1,"perreke",1234.4));
-        lista.add(new Inmueble(R.drawable.img2,"gateto",1234.4));
-        lista.add(new Inmueble(R.drawable.img3,"apolochece",1234.4));
     }
 }
